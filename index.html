@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fujiwa Việt Nam - Tinh Hoa Nhật Bản</title>
+    <style>
+        /* CSS RESET & BASE */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #f0f7ff 0%, #f8fafc 50%, #e0f2fe 100%); 
+            color: #1e293b; 
+            line-height: 1.6; 
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; color: inherit; }
+
+        /* HEADER & NAVIGATION */
+        header { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(2, 132, 199, 0.08); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .header-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px 20px; 
+            position: relative; 
+            height: 75px; 
+        }
+        .menu-toggle { font-size: 26px; color: #0284c7; cursor: pointer; width: 40px; transition: transform 0.2s; }
+        .menu-toggle:hover { transform: scale(1.1); color: #0ea5e9; }
+        .logo-area { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); transition: transform 0.3s ease; }
+        .logo-area:hover { transform: translate(-50%, -50%) scale(1.05); }
+        .logo-area img { height: 50px; width: auto; filter: drop-shadow(0 2px 8px rgba(2, 132, 199, 0.2)); }
+        
+        .header-tools { display: flex; align-items: center; gap: 20px; width: 80px; justify-content: flex-end; }
+        .user-account, .cart-icon { font-size: 22px; color: #0284c7; cursor: pointer; position: relative; transition: transform 0.2s; }
+        .user-account:hover, .cart-icon:hover { transform: scale(1.15); color: #0ea5e9; }
+        
+        .cart-badge {
+            position: absolute; top: -8px; right: -10px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white;
+            font-size: 11px; font-weight: 700; border-radius: 50%; width: 18px; height: 18px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); transition: transform 0.2s ease;
+        }
+        .cart-badge.bump { transform: scale(1.4); }
+        
+        /* MENU THẢ XUỐNG MƯỢT MÀ */
+        nav { 
+            display: none; position: absolute; top: 100%; left: 20px; 
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15); 
+            border-radius: 12px; width: 240px; overflow: hidden; 
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+        nav.show { display: block; }
+        nav ul { list-style: none; }
+        nav ul li a { display: block; padding: 14px 20px; font-weight: 600; color: #334155; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: all 0.3s ease; }
+        nav ul li a:hover, nav ul li a.active { background: linear-gradient(90deg, #e0f2fe, #f0f9ff); color: #0284c7; padding-left: 28px; }
+
+        /* POPUP CHUNG */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(6px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-box { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); width: 90%; max-width: 450px; padding: 30px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); position: relative; animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #94a3b8; cursor: pointer; transition: color 0.2s; }
+        .close-modal:hover { color: #ef4444; }
+
+        /* MUA HÀNG & GIỎ HÀNG */
+        .quantity-selector { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 25px 0; }
+        .qty-btn { width: 42px; height: 42px; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; color: #334155; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .qty-btn:hover { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+        .qty-input { width: 65px; height: 42px; text-align: center; font-size: 16px; font-weight: 700; border: 1px solid #cbd5e1; border-radius: 10px; outline: none; }
+
+        .cart-modern-box { max-width: 550px; width: 95%; max-height: 90vh; overflow-y: auto; }
+        .cart-items-list { max-height: 220px; overflow-y: auto; margin: 15px 0; border-bottom: 1px dashed #cbd5e1; }
+        .cart-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; gap: 10px; }
+        .cart-item-title { font-size: 13px; font-weight: 700; color: #1e293b; }
+        .cart-item-price { font-size: 13px; color: #ef4444; font-weight: 700; margin-top: 2px; }
+        .cart-qty-display { font-size: 14px; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 2px 8px; border-radius: 6px; }
+        .btn-delete-item { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px; padding: 5px; transition: transform 0.2s; }
+        .btn-delete-item:hover { transform: scale(1.25); }
+        .cart-total-footer { display: flex; justify-content: space-between; font-weight: 800; font-size: 18px; padding: 15px 0; color: #0f172a; border-top: 1px solid #f1f5f9; }
+
+        .checkout-section { margin-top: 15px; padding-top: 15px; border-top: 2px dashed #e2e8f0; display: none; }
+        .checkout-section.show { display: block; }
+        .checkout-title { font-size: 15px; font-weight: 800; color: #0369a1; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .checkout-form-group { margin-bottom: 14px; }
+        .checkout-form-group label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 5px; }
+        .checkout-form-group input, .checkout-form-group select { width: 100%; padding: 11px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; background: #ffffff; transition: all 0.3s; }
+        .checkout-form-group input:focus, .checkout-form-group select:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+
+        .receipt-box { text-align: center; }
+        .receipt-icon { font-size: 55px; animation: bounce 1s infinite alternate; }
+        .receipt-details { background: #f0f9ff; border: 1px dashed #0ea5e9; padding: 18px; border-radius: 14px; margin: 20px 0; text-align: left; font-size: 13px; }
+
+        /* PAGES */
+        .page { display: none; max-width: 1200px; margin: 40px auto; padding: 0 20px; min-height: 75vh; }
+        .page.active { display: block; animation: fadeIn 0.5s ease; }
+
+        /* HERO BANNER */
+        .hero-modern {
+            background: linear-gradient(135deg, #075985 0%, #0369a1 40%, #0284c7 100%); 
+            color: white; padding: 80px 50px; border-radius: 30px; position: relative; overflow: hidden; 
+            box-shadow: 0 25px 50px -12px rgba(2, 132, 199, 0.25); margin-bottom: 60px;
+        }
+        .hero-modern::before {
+            content: ''; position: absolute; top: -20%; right: -10%; width: 400px; height: 400px; 
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.3) 0%, transparent 70%); animation: floatBubble 6s infinite alternate ease-in-out;
+        }
+        .hero-content-wrap { position: relative; z-index: 2; max-width: 650px; }
+        .badge-tech {
+            display: inline-block; background: linear-gradient(90deg, rgba(14,165,233,0.25), rgba(56,189,248,0.1));
+            border: 1px solid rgba(56, 189, 248, 0.4); padding: 6px 18px; border-radius: 30px; color: #38bdf8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 25px;
+        }
+        .hero-modern h1 { font-size: 42px; font-weight: 800; line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.5px; }
+        .hero-modern p { color: #e0f2fe; font-size: 16px; line-height: 1.7; margin-bottom: 30px; opacity: 0.9; }
+        .btn-modern-action { 
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); color: white; border: none; 
+            padding: 14px 32px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; 
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4); 
+        }
+        .btn-modern-action:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(14, 165, 233, 0.6); filter: brightness(1.05); }
+
+        /* TIMELINE HÀNH TRÌNH KIẾN TẠO */
+        .section-headline { text-align: center; margin-bottom: 50px; }
+        .section-headline h2 { font-size: 28px; color: #0369a1; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; position: relative; display: inline-block; padding-bottom: 10px; }
+        .section-headline h2::after { content: ''; position: absolute; bottom: 0; left: 25%; width: 50%; height: 3px; background: linear-gradient(90deg, transparent, #0ea5e9, transparent); border-radius: 2px; }
+        .section-headline p { color: #64748b; font-size: 15px; margin-top: 8px; }
+        
+        .fluid-stream-timeline { position: relative; max-width: 900px; margin: 0 auto 60px auto; padding: 20px 0; }
+        .fluid-stream-timeline::before {
+            content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; 
+            background: linear-gradient(to bottom, #e0f2fe, #0ea5e9, #38bdf8, #f1f5f9); transform: translateX(-50%); border-radius: 2px;
+        }
+        .stream-card-wrapper { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 40px; position: relative; }
+        .stream-card-wrapper:nth-child(even) { flex-direction: row-reverse; }
+        .stream-glass-card {
+            width: 45%; background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(255, 255, 255, 0.5); 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 25px; border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.03); transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+        }
+        .stream-glass-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(14, 165, 233, 0.12); border-color: #0ea5e9; background: #ffffff; }
+        .stream-year { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #0284c7, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: block; margin-bottom: 6px; }
+        .stream-text { font-size: 13.5px; color: #475569; line-height: 1.6; font-weight: 500; }
+        .stream-glow-dot {
+            position: absolute; left: 50%; width: 16px; height: 16px; background: white; border: 4px solid #0ea5e9; border-radius: 50%; transform: translateX(-50%); z-index: 10; box-shadow: 0 0 12px rgba(14, 165, 233, 0.8); transition: all 0.3s;
+        }
+        .stream-card-wrapper:hover .stream-glow-dot { background: #0ea5e9; transform: translateX(-50%) scale(1.2); box-shadow: 0 0 18px #0ea5e9; }
+
+        /* KHỐI LỢI ÍCH NƯỚC VÀ BONG BÓNG TRUNG TÂM */
+        .water-benefit-container {
+            background: radial-gradient(circle at 50% 50%, #f0f9ff 0%, #e0f2fe 70%, #bae6fd 100%);
+            border-radius: 30px;
+            padding: 70px 50px;
+            margin: 50px auto;
+            max-width: 1160px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+            box-shadow: 0 20px 45px rgba(14, 165, 233, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            position: relative;
+        }
+        .benefit-side { width: 30%; display: flex; flex-direction: column; gap: 45px; z-index: 2; }
+        .benefit-item { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; }
+        .benefit-icon-circle {
+            width: 75px; height: 75px; border-radius: 50%; 
+            border: 2px solid rgba(14, 165, 233, 0.4); background: rgba(255, 255, 255, 0.9); 
+            display: flex; align-items: center; justify-content: center; font-size: 30px; margin-bottom: 15px; 
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.08); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .benefit-item:hover .benefit-icon-circle {
+            transform: translateY(-6px) scale(1.12);
+            background: #ffffff;
+            border-color: #0ea5e9;
+            box-shadow: 0 12px 28px rgba(14, 165, 233, 0.25);
+        }
+        .benefit-text { font-size: 14.5px; font-weight: 700; color: #0369a1; line-height: 1.5; max-width: 210px; transition: color 0.3s; }
+        .benefit-item:hover .benefit-text { color: #0ea5e9; }
+        
+        /* QUẢ CẦU NƯỚC 3D BỒNG BỀNH - KHÔNG NÚT BẤM (ĐÃ CĂN CHỈNH GIỮA HOÀN HẢO) */
+        .center-bubble-sphere {
+            width: 38%; aspect-ratio: 1;
+            background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 1) 0%, rgba(14, 165, 233, 0.4) 45%, rgba(2, 132, 199, 0.85) 85%);
+            border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 35px;
+            box-shadow: inset -15px -15px 40px rgba(1, 79, 134, 0.6), inset 10px 10px 25px rgba(255,255,255,0.4), 0 25px 50px rgba(2, 132, 199, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.6); position: relative; z-index: 2;
+            animation: floatBubble 5s ease-in-out infinite alternate;
+        }
+        .center-bubble-sphere h4 {
+            color: #ffffff; font-size: 24px; font-weight: 800; line-height: 1.45; text-transform: uppercase;
+            text-shadow: 0 3px 12px rgba(15, 23, 42, 0.5); margin-bottom: 0; letter-spacing: -0.5px;
+        }
+
+        /* KHỐI HỆ THỐNG TIÊU CHUẨN TOÀN CẦU */
+        .global-standards-section { 
+            text-align: center; 
+            max-width: 850px; 
+            margin: 50px auto 70px auto; 
+            padding: 35px 25px; 
+            background: rgba(255, 255, 255, 0.45); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            border: 1px solid rgba(14, 165, 233, 0.15);
+            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.03);
+        }
+        .global-standards-section h2 { 
+            font-size: 32px; 
+            color: #0060a9; 
+            font-weight: 800; 
+            margin-bottom: 6px; 
+            letter-spacing: -0.5px; 
+            text-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+        }
+        .global-standards-section h3 { font-size: 14px; color: #0ea5e9; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; }
+        .global-standards-section p { color: #475569; font-size: 15.5px; line-height: 1.8; font-weight: 500; }
+
+        /* DANH SÁCH SẢN PHẨM */
+        .grid-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
+        .product-card { 
+            background: white; border-radius: 20px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); 
+            text-align: center; display: flex; flex-direction: column; justify-content: space-between; 
+            position: relative; border: 1px solid #e2e8f0; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+        }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 35px rgba(14, 165, 233, 0.12); border-color: #0ea5e9; }
+        
+        .discount-badge { 
+            position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #ef4444, #dc2626); 
+            color: white; padding: 4px 10px; font-size: 11px; font-weight: bold; border-radius: 8px; z-index: 5; 
+            box-shadow: 0 3px 8px rgba(239,64,64,0.3); animation: pulseGlow 2s infinite;
+        }
+        .product-img { width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; background: #f8fafc; border-radius: 14px; padding: 10px; transition: transform 0.3s; }
+        .product-card:hover .product-img { transform: scale(1.04); }
+        .product-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; height: 45px; overflow: hidden; color: #1e293b; text-align: left; line-height: 1.5; }
+        .price-box { margin-bottom: 15px; text-align: left; }
+        .old-price { text-decoration: line-through; color: #94a3b8; font-size: 13px; margin-right: 8px; }
+        .current-price { color: #ef4444; font-weight: 800; font-size: 17px; }
+        .btn-buy { 
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; border: none; 
+            padding: 12px; width: 100%; border-radius: 12px; cursor: pointer; font-weight: 700; transition: all 0.3s; 
+        }
+        .btn-buy:hover { filter: brightness(1.08); transform: scale(1.02); box-shadow: 0 5px 15px rgba(2, 132, 199, 0.3); }
+
+        /* ĐƯỜNG DÂY NÓNG FIXED */
+        .fixed-phone-btn { 
+            position: fixed; bottom: 25px; left: 25px; width: 60px; height: 60px; 
+            background: linear-gradient(135deg, #0ea5e9, #0284c7); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; 
+            cursor: pointer; z-index: 999; box-shadow: 0 8px 25px rgba(14,165,233,0.5); 
+            border: 2px solid white; animation: pulseGlow 1.5s infinite; 
+        }
+
+        /* CAM KẾT CHẤT LƯỢNG */
+        .commitment-page { background: white; padding: 55px 35px; border-radius: 26px; text-align: center; border: 1px solid #e2e8f0; }
+        .commit-sub { color: #0ea5e9; font-size: 12px; text-transform: uppercase; font-weight: 800; letter-spacing: 2.5px; margin-bottom: 12px; }
+        .commit-title { color: #0f172a; font-size: 32px; font-weight: 800; margin-bottom: 18px; letter-spacing: -0.5px; }
+        .commit-desc { color: #64748b; max-width: 700px; margin: 0 auto 45px auto; font-size: 14.5px; }
+        .commit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .commit-card { background: #f8fafc; padding: 35px 25px; border-radius: 20px; border: 1px solid #e2e8f0; transition: all 0.4s ease; }
+        .commit-card:hover { transform: translateY(-6px); border-color: #38bdf8; background: #ffffff; box-shadow: 0 15px 30px rgba(14, 165, 233, 0.1); }
+        .commit-icon { font-size: 45px; margin-bottom: 18px; display: inline-block; }
+        .commit-footer-text { max-width: 850px; margin: 0 auto; color: #475569; font-size: 14.5px; line-height: 1.8; background: #f0f9ff; padding: 25px; border-radius: 18px; border: 1px solid #e0f2fe; }
+
+        /* LIÊN HỆ FORM */
+        .contact-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: white; padding: 45px; border-radius: 24px; border: 1px solid #e2e8f0; }
+        .contact-info h3 { margin-bottom: 15px; color: #0f172a; font-weight: 800; font-size: 26px; }
+        .contact-form input, .contact-form textarea { width: 100%; padding: 14px; margin-bottom: 18px; border: 1px solid #cbd5e1; border-radius: 12px; background: #f8fafc; outline: none; transition: all 0.3s; }
+        .contact-form input:focus, .contact-form textarea:focus { background: #ffffff; border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15); }
+        .contact-form button { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; border: none; padding: 14px 32px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .contact-form button:hover { background: #0ea5e9; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(14, 165, 233, 0.3); }
+
+        /* FOOTER */
+        footer { background: linear-gradient(135deg, #0f172a 0%, #020617 100%); color: #94a3b8; padding: 50px 20px; margin-top: 70px; font-size: 14px; border-radius: 30px 30px 0 0; }
+        .footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 35px; }
+        .footer-col h4 { color: white; margin-bottom: 18px; font-weight: 700; font-size: 16px; }
+        .footer-bottom { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #1e293b; font-size: 12px; }
+
+        /* KEYFRAMES ANIMATIONS */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+        @keyframes floatBubble { 
+            0% { transform: translateY(0px) rotate(0deg); } 
+            50% { transform: translateY(-12px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(-1deg); } 
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(14, 165, 233, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
+
+        /* RESPONSIVE MÀN HÌNH NHỎ */
+        @media (max-width: 900px) {
+            .water-benefit-container { flex-direction: column; padding: 40px 20px; }
+            .benefit-side { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 20px; }
+            .benefit-item { width: 45%; }
+            .center-bubble-sphere { width: 280px; order: -1; margin-bottom: 20px; }
+            .contact-container { grid-template-columns: 1fr; }
+            .hero-modern h1 { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hotline nút nổi phát sáng -->
+    <div class="fixed-phone-btn" onclick="location.href='tel:19008462'">📞</div>
+
+    <!-- HEADER MENU -->
+    <header>
+        <div class="header-container">
+            <div class="menu-toggle" onclick="toggleMenu(event)">☰</div>
+            <div class="logo-area">
+                <a onclick="switchPage('trang-chu')" style="cursor: pointer;">
+                    <img src="logo.png" alt="Fujiwa Việt Nam">
+                </a>
+            </div>
+            <div class="header-tools">
+                <div class="cart-icon" onclick="openCartModal()">
+                    🛒<div class="cart-badge" id="cart-counter">0</div>
+                </div>
+                <div class="user-account" onclick="openAuthModal()">👤</div>
+            </div>
+            
+            <nav id="dropdown-menu">
+                <ul>
+                    <li><a onclick="switchPage('trang-chu')" id="nav-trang-chu" class="active">Trang Chủ</a></li>
+                    <li><a onclick="switchPage('san-pham')" id="nav-san-pham">Sản Phẩm</a></li>
+                    <li><a onclick="switchPage('cam-ket')" id="nav-cam-ket">Cam Kết Chất Lượng</a></li>
+                    <li><a onclick="switchPage('lien-he')" id="nav-lien-he">Liên Hệ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- PAGE 1: TRANG CHỦ -->
+    <div id="trang-chu" class="page active">
+        <div class="hero-modern">
+            <div class="hero-content-wrap">
+                <span class="badge-tech">Sức khỏe vững bền</span>
+                <h1>Tinh Hoa Công Nghệ Sinh Học Nhật Bản</h1>
+                <p>Khám phá bí mật đằng sau nguồn năng lượng kích hoạt lối sống trẻ, khỏe thông qua hành trình kiến tạo giải pháp nước uống bảo vệ sức khỏe toàn diện cho gia đình Việt.</p>
+                <button class="btn-modern-action" onclick="switchPage('san-pham')">Trải nghiệm sản phẩm</button>
+            </div>
+        </div>
+
+        <div class="section-headline">
+            <h2>Hành Trình Kiến Tạo Giá Trị</h2>
+            <p>Hơn nửa thập kỷ cống hiến vì một cộng đồng sống khỏe chuẩn Nhật Bản</p>
+        </div>
+
+        <!-- Timeline phát sáng di chuyển dọc -->
+        <div class="fluid-stream-timeline">
+            <div class="stream-card-wrapper">
+                <div class="stream-glass-card">
+                    <span class="stream-year">2018</span>
+                    <p class="stream-text">Fujiwa chính thức được thành lập từ ý tưởng nhân văn: Khởi tạo một nguồn nước uống chất lượng thượng hạng cải thiện sức khỏe người Việt.</p>
+                </div>
+                <div class="stream-glow-dot"></div>
+            </div>
+            <div class="stream-card-wrapper">
+                <div class="stream-glass-card">
+                    <span class="stream-year">2020</span>
+                    <p class="stream-text">Khẳng định nền tảng vững chắc bằng việc đạt chứng nhận Hệ thống quản lý chất lượng quốc tế nghiêm ngặt ISO 22000:2018.</p>
+                </div>
+                <div class="stream-glow-dot"></div>
+            </div>
+            <div class="stream-card-wrapper">
+                <div class="stream-glass-card">
+                    <span class="stream-year">2021</span>
+                    <p class="stream-text">Xây dựng lòng tin tuyệt đối nhờ được cấp Chứng nhận quy phạm thực hành sản xuất tốt (GMP) trên toàn hệ thống dây chuyền.</p>
+                </div>
+                <div class="stream-glow-dot"></div>
+            </div>
+            <div class="stream-card-wrapper">
+                <div class="stream-glass-card">
+                    <span class="stream-year">2022</span>
+                    <p class="stream-text">Nâng cấp hàng rào an toàn với chứng nhận hệ thống phân tích mối nguy và kiểm soát điểm tới hạn tối cao toàn cầu.</p>
+                </div>
+                <div class="stream-glow-dot"></div>
+            </div>
+            <div class="stream-card-wrapper">
+                <div class="stream-glass-card">
+                    <span class="stream-year">2023</span>
+                    <p class="stream-text">Bùng nổ đa dạng hóa các dòng sản phẩm sinh học cao cấp, phủ sóng rộng khắp thị trường nội địa và hướng tầm quốc tế.</p>
+                </div>
+                <div class="stream-glow-dot"></div>
+            </div>
+        </div>
+
+        <!-- PHẦN ĐỒ HỌA BONG BÓNG TRUNG TÂM (image_6285e5.png) -->
+        <div class="water-benefit-container">
+            <div class="benefit-side">
+                <div class="benefit-item">
+                    <div class="benefit-icon-circle">❤️</div>
+                    <div class="benefit-text">Hỗ trợ cho hệ tiêu hoá</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon-circle">🥛</div>
+                    <div class="benefit-text">Bổ sung vi khoáng chất thiết yếu</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon-circle">🧪</div>
+                    <div class="benefit-text">Trung hoà axit dư thừa</div>
+                </div>
+            </div>
+
+            <!-- Quả cầu nước trung tâm 3D bồng bềnh (Đã căn giữa hoàn hảo và bỏ nút bấm) -->
+            <div class="center-bubble-sphere">
+                <h4>Sức khoẻ tốt bắt nguồn từ việc uống nước tốt</h4>
+            </div>
+
+            <div class="benefit-side">
+                <div class="benefit-item">
+                    <div class="benefit-icon-circle">🥬</div>
+                    <div class="benefit-text">Tính kiềm tự nhiên như rau xanh</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon-circle">🏃</div>
+                    <div class="benefit-text">Bù mất nước nhanh, giảm đau</div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon-circle">✨</div>
+                    <div class="benefit-text">Ngăn ngừa lão hoá, detox</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHẦN HỆ THỐNG TIÊU CHUẨN TOÀN CẦU (NẰM DƯỚI BONG BÓNG) -->
+        <div class="global-standards-section">
+            <h2>Fujiwa Vietnam</h2>
+            <h3>Hệ thống tiêu chuẩn toàn cầu</h3>
+            <p>Chúng tôi tự hại là thương hiệu Việt đáp ứng trọn vẹn những bộ tiêu chuẩn kiểm định gắt gao nhất từ các cơ quan kiểm duyệt uy tín hàng đầu trên khắp thế giới.</p>
+        </div>
+    </div>
+
+    <!-- PAGE 2: DANH MỤC SẢN PHẨM (GIỮ NGUYÊN 12 SẢN PHẨM ĐẦY ĐỦ) -->
+    <div id="san-pham" class="page">
+        <h2 style="margin-bottom: 35px; text-align: center; font-weight: 800; color: #0f172a;">Danh Mục Sản Phẩm Cao Cấp</h2>
+        <div class="grid-products">
+            <!-- SP 1 -->
+            <div class="product-card">
+                <span class="discount-badge">Giảm 5%</span>
+                <img class="product-img" src="sp1.png" alt="Nước Ph8">
+                <div>
+                    <div class="product-title">Nước Ph8 – Thùng 24 chai 450ml</div>
+                    <div class="price-box"><span class="old-price">132.000đ</span><span class="current-price">125.400đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Ph8 – Thùng 24 chai 450ml', 125400)">Mua hàng</button>
+            </div>
+            <!-- SP 2 -->
+            <div class="product-card">
+                <span class="discount-badge">Giảm 4%</span>
+                <img class="product-img" src="sp2.png" alt="Hydrogen Lon">
+                <div>
+                    <div class="product-title">Nước Uống Giàu Hydrogen Cao Cấp – Lon 330ml</div>
+                    <div class="price-box"><span class="old-price">552.000đ</span><span class="current-price">529.920đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống Giàu Hydrogen Cao Cấp – Lon 330ml', 529920)">Mua hàng</button>
+            </div>
+            <!-- SP 3 -->
+            <div class="product-card">
+                <span class="discount-badge">Giảm 5%</span>
+                <img class="product-img" src="sp3.png" alt="Kiềm 1250ml">
+                <div>
+                    <div class="product-title">Nước Uống I-ON Kiềm Cao Cấp Fujiwa 1250ML – Thùng 12 Chai</div>
+                    <div class="price-box"><span class="old-price">215.000đ</span><span class="current-price">204.250đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống I-ON Kiềm Cao Cấp Fujiwa 1250ML – Thùng 12 Chai', 204250)">Mua hàng</button>
+            </div>
+            <!-- SP 4 -->
+            <div class="product-card">
+                <span class="discount-badge">Giảm 3%</span>
+                <img class="product-img" src="sp4.png" alt="Hydrogen Túi">
+                <div>
+                    <div class="product-title">Nước Uống Giàu Hydrogen – Thùng 4 Hộp 12 Túi 270ml</div>
+                    <div class="price-box"><span class="old-price">2.160.000đ</span><span class="current-price">2.095.200đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống Giàu Hydrogen – Thùng 4 Hộp 12 Túi 270ml', 2095200)">Mua hàng</button>
+            </div>
+            <!-- SP 5 -->
+            <div class="product-card">
+                <img class="product-img" src="sp5.png" alt="Kiềm 18L">
+                <div>
+                    <div class="product-title">Nước Uống I-ON Kiềm Cao Cấp Fujiwa Bình 18L</div>
+                    <div class="price-box"><span class="current-price">105.000đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống I-ON Kiềm Cao Cấp Fujiwa Bình 18L', 105000)">Mua hàng</button>
+            </div>
+            <!-- SP 6 -->
+            <div class="product-card">
+                <span class="discount-badge">Giảm 5%</span>
+                <img class="product-img" src="sp6.png" alt="Kiềm 300ml">
+                <div>
+                    <div class="product-title">Nước Uống I-ON Kiềm Cao Cấp 300ml – Thùng 24 Chai</div>
+                    <div class="price-box"><span class="old-price">180.000đ</span><span class="current-price">171.000đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống I-ON Kiềm Cao Cấp 300ml – Thùng 24 Chai', 171000)">Mua hàng</button>
+            </div>
+            <!-- SP 7 -->
+            <div class="product-card">
+                <img class="product-img" src="sp7.png" alt="Kiềm 6L">
+                <div>
+                    <div class="product-title">Nước Uống I-ON Kiềm Cao Cấp 6L – Thùng 2 Bình</div>
+                    <div class="price-box"><span class="current-price">170.000đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống I-ON Kiềm Cao Cấp 6L – Thùng 2 Bình', 170000)">Mua hàng</button>
+            </div>
+            <!-- SP 8 -->
+            <div class="product-card">
+                <span class="discount-badge">Giảm 5%</span>
+                <img class="product-img" src="sp8.png" alt="Thanh khiết 1250ml">
+                <div>
+                    <div class="product-title">Nước Uống Thanh Khiết Fujiwa – Thùng 12 Chai 1250ml</div>
+                    <div class="price-box"><span class="old-price">264.000đ</span><span class="current-price">250.800đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống Thanh Khiết Fujiwa – Thùng 12 Chai 1250ml', 250800)">Mua hàng</button>
+            </div>
+            <!-- SP 9 -->
+            <div class="product-card">
+                <img class="product-img" src="sp9.png" alt="Thanh khiết 6L">
+                <div>
+                    <div class="product-title">Nước Uống Thanh Khiết Fujiwa – Thùng 2 Bình 6L</div>
+                    <div class="price-box"><span class="current-price">200.000đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống Thanh Khiết Fujiwa – Thùng 2 Bình 6L', 200000)">Mua hàng</button>
+            </div>
+            <!-- SP 10 -->
+            <div class="product-card">
+                <span class="discount-badge">Giảm 4%</span>
+                <img class="product-img" src="sp10.png" alt="Thanh khiết 680ml">
+                <div>
+                    <div class="product-title">Nước Uống Thanh Khiết Fujiwa – Thùng 20 Chai 680ml</div>
+                    <div class="price-box"><span class="old-price">260.000đ</span><span class="current-price">249.600đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Uống Thanh Khiết Fujiwa – Thùng 20 Chai 680ml', 249600)">Mua hàng</button>
+            </div>
+            <!-- SP 11 -->
+            <div class="product-card">
+                <img class="product-img" src="sp11.png" alt="Xịt tay Fujiful">
+                <div>
+                    <div class="product-title">Nước Xịt Rửa Tay Diệt Khuẩn Dưỡng Da Fujiful</div>
+                    <div class="price-box"><span class="current-price">120.000đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Xịt Rửa Tay Diệt Khuẩn Dưỡng Da Fujiful', 120000)">Mua hàng</button>
+            </div>
+            <!-- SP 12 -->
+            <div class="product-card">
+                <span class="discount-badge">Giảm 5%</span>
+                <img class="product-img" src="sp12.png" alt="Xịt miệng Fujisalt">
+                <div>
+                    <div class="product-title">Nước Xịt thơm miệng cao cấp Fujisalt</div>
+                    <div class="price-box"><span class="old-price">960.000đ</span><span class="current-price">912.000đ</span></div>
+                </div>
+                <button class="btn-buy" onclick="openBuyModal('Nước Xịt thơm miệng cao cấp Fujisalt', 912000)">Mua hàng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: CAM KẾT CHẤT LƯỢNG -->
+    <div id="cam-ket" class="page">
+        <div class="commitment-page">
+            <div class="commit-sub">Cam Kết Từ Hãng</div>
+            <h2 class="commit-title">FUJIWA CAM KẾT VỚI KHÁCH HÀNG</h2>
+            <p class="commit-desc">Chung tay tạo nên giá trị bền vững cho cộng đồng với các sản phẩm tốt nhất cho sức khỏe từ nước I-on kiềm cao cấp FUJIWA</p>
+            
+            <div class="commit-grid">
+                <div class="commit-card">
+                    <span class="commit-icon">🚀</span>
+                    <h3>Công nghệ sản xuất</h3>
+                    <p>Nhật Bản</p>
+                </div>
+                <div class="commit-card">
+                    <span class="commit-icon">💎</span>
+                    <h3>Chất lượng vàng</h3>
+                    <p>Hệ thống tự động hóa</p>
+                </div>
+                <div class="commit-card">
+                    <span class="commit-icon">🌍</span>
+                    <h3>Kiến tạo cộng đồng</h3>
+                    <p>Sức khỏe vững bền</p>
+                </div>
+            </div>
+            <p class="commit-footer-text">
+                Tại FUJIWA VIETNAM, sản phẩm nước i-on kiềm cao cấp được sản xuất quy trình công nghệ chuyển giao trực tiếp từ Nhật Bản mang tới "trải nghiệm trọn vẹn" cho Người tiêu dùng trên từng sản phẩm chuẩn sức khỏe.
+            </p>
+        </div>
+    </div>
+
+    <!-- PAGE 4: LIÊN HỆ -->
+    <div id="lien-he" class="page">
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>Liên hệ Fujiwa</h3>
+                <p>Chúng tôi luôn ở đây để giải đáp thắc mắc về nguồn nước sinh học chuẩn Nhật Bản.</p>
+                <p style="margin-top: 15px;"><strong>Hotline hỗ trợ:</strong> <span style="color: #0ea5e9; font-weight: bold; font-size: 18px;">1900 8462</span></p>
+                <p><strong>Email:</strong> 8462D7@fujiwavietnam.vn</p>
+            </div>
+            <div class="contact-form">
+                <form onsubmit="event.preventDefault(); alert('Gửi tin nhắn thành công!');">
+                    <input type="text" placeholder="Tên của bạn" required>
+                    <input type="email" placeholder="Email liên hệ" required>
+                    <textarea rows="4" placeholder="Lời nhắn gửi tới Fujiwa..." required></textarea>
+                    <button type="submit">Gửi thông tin</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POPUPS ĐIỀU HƯỚNG TƯƠNG TÁC -->
+    <div id="auth-modal" class="modal-overlay" onclick="closeAuthModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+            <h3 style="margin-bottom:20px; font-weight:800;">Đăng Nhập Hệ Thống</h3>
+            <form onsubmit="event.preventDefault(); alert('Đăng nhập thành công!'); closeAuthModal();">
+                <input type="text" placeholder="Tên đăng nhập" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px;" required>
+                <input type="password" placeholder="Mật khẩu" style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #cbd5e1; border-radius:8px;" required>
+                <button type="submit" style="width:100%; background:#0ea5e9; color:white; border:none; padding:12px; border-radius:8px; font-weight:700; cursor:pointer;">Vào tài khoản</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="buy-modal" class="modal-overlay" onclick="closeBuyModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeBuyModal()">&times;</span>
+            <h3 style="font-weight: 800; color: #0f172a; font-size: 18px;" id="buy-modal-title">Chọn số lượng</h3>
+            <div class="quantity-selector">
+                <button class="qty-btn" onclick="adjustQty(-1)">-</button>
+                <input type="number" class="qty-input" id="modal-qty-input" value="1" min="1">
+                <button class="qty-btn" onclick="adjustQty(1)">+</button>
+            </div>
+            <button onclick="confirmAddToCart()" style="width:100%; background:#0ea5e9; color:white; border:none; padding:13px; border-radius:10px; font-weight:700; cursor:pointer;">
+                Xác nhận thêm vào giỏ
+            </button>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="modal-overlay" onclick="closeCartModal()">
+        <div class="modal-box cart-modern-box" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeCartModal()">&times;</span>
+            <h3 style="font-weight: 800; color: #0f172a; font-size: 20px; margin-bottom: 5px;">🛒 Giỏ Hàng</h3>
+            <div class="cart-items-list" id="cart-items-container"></div>
+            <div class="cart-total-footer">
+                <span>Tổng tiền:</span>
+                <span id="cart-total-price" style="color:#ef4444;">0đ</span>
+            </div>
+            <div class="checkout-section" id="checkout-form-area">
+                <div class="checkout-title">Thông Tin Thanh Toán</div>
+                <form id="order-submit-form" onsubmit="executeCheckout(event)">
+                    <div class="checkout-form-group"><label>Họ và tên *</label><input type="text" id="order-name" required></div>
+                    <div class="checkout-form-group"><label>Số điện thoại *</label><input type="tel" id="order-phone" required></div>
+                    <div class="checkout-form-group"><label>Địa chỉ *</label><input type="text" id="order-address" required></div>
+                    <div class="checkout-form-group">
+                        <label>Phương thức *</label>
+                        <select id="order-payment">
+                            <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                            <option value="Chuyển khoản">Chuyển khoản qua Ngân hàng</option>
+                        </select>
+                    </div>
+                    <button type="submit" style="width:100%; background:#22c55e; color:white; border:none; padding:13px; border-radius:10px; font-weight:700; cursor:pointer; margin-top:10px;">
+                        Đặt hàng ngay
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="receipt-modal" class="modal-overlay" onclick="closeReceiptModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
+            <div class="receipt-box">
+                <div class="receipt-icon">🎉</div>
+                <h3 style="font-weight: 800; color: #1e293b; font-size: 20px; margin-top:10px;">Đặt Hàng Thành Công!</h3>
+                <div class="receipt-details">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><strong>Mã đơn:</strong> <span id="r-code" style="color:#0ea5e9; font-weight:700;">#FJW123</span></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><strong>Khách hàng:</strong> <span id="r-name">...</span></div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><strong>Tổng tiền:</strong> <span id="r-total" style="color:#ef4444; font-weight:800;">0đ</span></div>
+                </div>
+                <button onclick="closeReceiptModal()" style="width:100%; background:#0f172a; color:white; border:none; padding:12px; border-radius:8px; font-weight:700; cursor:pointer;">Tiếp tục mua sắm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-col">
+                <h4>Fujiwa Việt Nam</h4>
+                <p>Mang công nghệ điện phân nước đỉnh cao Nhật Bản nâng tầm chất lượng sống cho thế hệ Việt.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Trung Tâm Hỗ Trợ</h4>
+                <p>Tổng đài: 1900 8462</p>
+                <p>Email: 8462D7@fujiwavietnam.vn</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Fujiwa Việt Nam. Giao diện tối ưu hóa trải nghiệm thị giác.
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE LOGIC SCRIPT -->
+    <script>
+        let cartList = [];
+        let currentSelectingProduct = "";
+        let currentSelectingPrice = 0;
+
+        function toggleMenu(event) {
+            event.stopPropagation();
+            document.getElementById('dropdown-menu').classList.toggle('show');
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('nav ul li a').forEach(link => link.classList.remove('active'));
+            const activeLink = document.getElementById('nav-' + pageId);
+            if(activeLink) activeLink.classList.add('active');
+            document.getElementById('dropdown-menu').classList.remove('show');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function openAuthModal() { document.getElementById('auth-modal').classList.add('show'); }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.remove('show'); }
+
+        function openBuyModal(productName, price) {
+            currentSelectingProduct = productName;
+            currentSelectingPrice = price;
+            document.getElementById('buy-modal-title').innerText = productName;
+            document.getElementById('modal-qty-input').value = 1;
+            document.getElementById('buy-modal').classList.add('show');
+        }
+        function closeBuyModal() { document.getElementById('buy-modal').classList.remove('show'); }
+
+        function adjustQty(amount) {
+            let input = document.getElementById('modal-qty-input');
+            let currentVal = parseInt(input.value) || 1;
+            let newVal = currentVal + amount;
+            if (newVal >= 1) input.value = newVal;
+        }
+
+        function confirmAddToCart() {
+            let input = document.getElementById('modal-qty-input');
+            let qty = parseInt(input.value);
+            let existingProduct = cartList.find(item => item.name === currentSelectingProduct);
+            if (existingProduct) { existingProduct.quantity += qty; } 
+            else { cartList.push({ name: currentSelectingProduct, price: currentSelectingPrice, quantity: qty }); }
+            updateCartHeaderBadge();
+            closeBuyModal();
+        }
+
+        function openCartModal() { renderCartItems(); document.getElementById('cart-modal').classList.add('show'); }
+        function closeCartModal() { document.getElementById('cart-modal').classList.remove('show'); }
+
+        function deleteCartItem(productName) {
+            cartList = cartList.filter(item => item.name !== productName);
+            renderCartItems();
+            updateCartHeaderBadge();
+        }
+
+        function formatMoney(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ"; }
+        function getCartTotalSum() { return cartList.reduce((sum, item) => sum + (item.price * item.quantity), 0); }
+
+        function renderCartItems() {
+            let container = document.getElementById('cart-items-container');
+            let totalTxt = document.getElementById('cart-total-price');
+            let checkoutArea = document.getElementById('checkout-form-area');
+            if (cartList.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:#64748b; padding:20px 0;">Giỏ hàng trống!</div>`;
+                totalTxt.innerText = "0đ";
+                checkoutArea.classList.remove('show');
+                return;
+            }
+            let htmlContent = "";
+            cartList.forEach(item => {
+                htmlContent += `
+                    <div class="cart-item">
+                        <div>
+                            <div class="cart-item-title">${item.name}</div>
+                            <div class="cart-item-price">${formatMoney(item.price)}</div>
+                        </div>
+                        <div>
+                            <span class="cart-qty-display">x${item.quantity}</span>
+                            <button class="btn-delete-item" onclick="deleteCartItem('${item.name}')">🗑️</button>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = htmlContent;
+            totalTxt.innerText = formatMoney(getCartTotalSum());
+            checkoutArea.classList.add('show');
+        }
+
+        function updateCartHeaderBadge() {
+            let badge = document.getElementById('cart-counter');
+            let totalQty = cartList.reduce((sum, item) => sum + item.quantity, 0);
+            badge.innerText = totalQty;
+            badge.classList.add('bump');
+            setTimeout(() => { badge.classList.remove('bump'); }, 200);
+        }
+
+        function executeCheckout(event) {
+            event.preventDefault();
+            let name = document.getElementById('order-name').value;
+            let finalPrice = getCartTotalSum();
+            let randomCode = "#FJW" + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('r-code').innerText = randomCode;
+            document.getElementById('r-name').innerText = name;
+            document.getElementById('r-total').innerText = formatMoney(finalPrice);
+            cartList = [];
+            updateCartHeaderBadge();
+            closeCartModal();
+            document.getElementById('receipt-modal').classList.add('show');
+            document.getElementById('order-submit-form').reset();
+        }
+
+        function closeReceiptModal() { document.getElementById('receipt-modal').classList.remove('show'); }
+        window.onclick = function(event) { if (!event.target.matches('.menu-toggle')) { document.getElementById('dropdown-menu').classList.remove('show'); } }
+    </script>
+</body>
+</html>
